@@ -7,14 +7,24 @@ def main():
     window.title("Fibonacci Series")
 
     entry = Entry(window)
-    entry.grid(row=0, column=0, padx=(15,5))
+    entry.grid(row=0, column=0, padx=(15,5), pady=(15,0))
     entry.insert(0, 'Enter n ≥ 0')
     entry.bind('<FocusIn>', partial(onFocusIn, entry))
     entry.bind('<FocusOut>', partial(onFocusOut, entry))
     entry.config(fg='light grey')
 
-    Button(window, text='Recursive', command=partial(display1, entry)).grid(row=0,column=1)
-    Button(window, text='Dynamic', command=partial(display2, entry)).grid(row=0,column=2,padx=(5,15))
+    Label(window, text='F(n): ').grid(row=1,column=0,sticky='W',pady=(15,0),padx=(10,0))
+    valueStr = StringVar()
+    valueStr.set('')
+    lbl1 = Label(window, textvariable = valueStr, fg='blue').grid(row=1,column=0,sticky='E',pady=(15,0))
+    
+    Label(window, text='Time: ').grid(row=2,column=0,sticky='W',padx=(10,0),pady=(0,15))
+    timeStr = StringVar()
+    timeStr.set('')
+    lbl2 = Label(window, textvariable = timeStr, fg='blue').grid(row=2,column=0,sticky='E',pady=(0,15))
+
+    Button(window, text='Recursive', command=partial(display1, entry, valueStr, timeStr)).grid(row=0,column=1,pady=(15,0))
+    Button(window, text='Dynamic', command=partial(display2, entry, valueStr, timeStr)).grid(row=0,column=2,pady=(15,0),padx=(5,15))
     
     window.mainloop()
 
@@ -28,19 +38,21 @@ def onFocusOut(entry, e):
         entry.insert(0, 'Enter n ≥ 0')
         entry.config(fg = 'light grey')
 
-def display1(entry):
+def display1(entry, valueStr, timeStr):
     try:
         n = int(Entry.get(entry))
         if n >= 0:
             startTime = time.perf_counter()
-            print("Call recursive function")
+            value = fibRecursive(n)
             elapsedTime = round(((time.perf_counter() - startTime) * 1000), 6)
-        else:
-            print("Not Good")
-    except:
-        print("Not Good")
 
-def display2(entry):
+            displayResults(value, elapsedTime, valueStr, timeStr)
+        else:
+            displayResults('Invalid Input', 'Invalid Input', valueStr, timeStr)
+    except:
+        displayResults('Invalid Input', 'Invalid Input', valueStr, timeStr)
+
+def display2(entry, valueStr, timeStr):
     try:
         n = int(Entry.get(entry))
         if n >= 0:
@@ -48,9 +60,18 @@ def display2(entry):
             print("Call dynamic function")
             elapsedTime = round(((time.perf_counter() - startTime) * 1000), 6)
         else:
-            print("Not Good")
+            displayResults('Invalid Input', 'Invalid Input', valueStr, timeStr)
     except:
-        print("Not Good")
+        displayResults('Invalid Input', 'Invalid Input', valueStr, timeStr)
+
+def displayResults(value, time, valueStr, timeStr):
+    if isinstance(value, str):
+        timeSpent = time
+    else:
+        timeSpent = str(time) + ' ms'
+        
+    valueStr.set(value)
+    timeStr.set(timeSpent)
 
 def fibRecursive(n):
     if n == 0:
@@ -59,6 +80,9 @@ def fibRecursive(n):
         return 1
     else:
         return (fibRecursive(n-1) + fibRecursive(n-2))
+
+def fibDynamic(n):
+    a = b = 1
 
 if __name__ == "__main__":
     main()
