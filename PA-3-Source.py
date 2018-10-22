@@ -2,6 +2,19 @@ import time
 from tkinter import *
 from functools import partial
 
+def cache(fn):
+    CACHE = {}
+
+    def wrapper(*args):
+        if args in CACHE:
+            return CACHE[args]
+        else:
+            result = fn(*args)
+            CACHE[args] = result
+            return result
+
+    return wrapper
+
 def main():
     window = Tk()
     window.title("Fibonacci Series")
@@ -57,8 +70,10 @@ def display2(entry, valueStr, timeStr):
         n = int(Entry.get(entry))
         if n >= 0:
             startTime = time.perf_counter()
-            print("Call dynamic function")
+            value = fibDynamic(n)
             elapsedTime = round(((time.perf_counter() - startTime) * 1000), 6)
+
+            displayResults(value, elapsedTime, valueStr, timeStr)
         else:
             displayResults('Invalid Input', 'Invalid Input', valueStr, timeStr)
     except:
@@ -83,6 +98,16 @@ def fibRecursive(n):
 
 def fibDynamic(n):
     a = b = 1
+    if n == 0:
+        return 1
+    else:
+        for x in range(0, n-1):
+            temp = a + b
+            a = b
+            b = temp
+    return b
+
+fibDynamic = cache(fibDynamic)
 
 if __name__ == "__main__":
     main()
