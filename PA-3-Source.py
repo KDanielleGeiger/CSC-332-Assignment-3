@@ -1,6 +1,12 @@
 import time
+import csv
+import os.path
 from tkinter import *
 from functools import partial
+
+##  Toggles whether or not to create/add results to the spreadsheet
+##  Used to generate Fibonacci_Time.csv
+generateSpreadsheet = True
 
 ##  Decorator that caches results for the fibDynamic function
 def cache(fn):
@@ -70,6 +76,14 @@ def display1(entry, valueStr, timeStr):
             elapsedTime = round(((time.perf_counter() - startTime) * 1000), 6)
 
             displayResults(value, elapsedTime, valueStr, timeStr)
+
+            ##  If generateSpreadsheet == True, time the other algorithm and call generateResults
+            if generateSpreadsheet == True:
+                startTime2 = time.perf_counter()
+                fibDynamic(n)
+                elapsedTime2 = round(((time.perf_counter() - startTime2) * 1000), 6)
+
+                generateResults('Fibonacci_Time.csv', n, value, elapsedTime, elapsedTime2)
         else:
             displayResults('Invalid Input', 'Invalid Input', valueStr, timeStr)
     except:
@@ -85,6 +99,14 @@ def display2(entry, valueStr, timeStr):
             elapsedTime = round(((time.perf_counter() - startTime) * 1000), 6)
 
             displayResults(value, elapsedTime, valueStr, timeStr)
+
+            ##  If generateSpreadsheet == True, time the other algorithm and call generateResults
+            if generateSpreadsheet == True:
+                startTime2 = time.perf_counter()
+                fibRecursive(n)
+                elapsedTime2 = round(((time.perf_counter() - startTime2) * 1000), 6)
+
+                generateResults('Fibonacci_Time.csv', n, value, elapsedTime2, elapsedTime)
         else:
             displayResults('Invalid Input', 'Invalid Input', valueStr, timeStr)
     except:
@@ -119,6 +141,28 @@ def fibDynamic(n):
         a = b
         b = temp
     return b
+
+def generateResults(filename, n, value, timeRecursive, timeDynamic):
+    value1 = (2**n) / n
+
+    value2 = timeRecursive / timeDynamic
+
+    ##  If the file does not exist, create it and add the results to it
+    if os.path.isfile(filename) == False:
+        with open(filename, mode='w', newline='') as file:
+            fieldnames = ['n', 'F(n)', 'T1: Time spent on the recursive algorithm (milliseconds)',
+                          'T2: Time spent on the DP algorithm (milliseconds)', 'Value of (2^n)/n', 'Value of T1/T2']
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            
+            writer.writeheader()
+            writer.writerow({'n': n, 'F(n)': value, 'T1: Time spent on the recursive algorithm (milliseconds)': timeRecursive,
+                             'T2: Time spent on the DP algorithm (milliseconds)': timeDynamic,
+                             'Value of (2^n)/n': value1, 'Value of T1/T2': value2})
+    ##  If the file already exists, append the results to the existing file
+    else:
+        with open (filename, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow((n, value, timeRecursive, timeDynamic, value1, value2))
 
 if __name__ == "__main__":
     main()
