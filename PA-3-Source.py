@@ -4,9 +4,10 @@ import os.path
 from tkinter import *
 from functools import partial
 
-##  Toggles whether or not to create/add results to the spreadsheet
-##  Used to generate Fibonacci_Time.csv
-generateSpreadsheet = True
+##  Toggles spreadsheet generation
+##  Used to create Fibonacci_Time.csv
+##  *** Enabling this will run BOTH algorithms, regardless of what the user selects ***
+generateSpreadsheet = False
 
 ##  Decorator that caches results for the fibDynamic function
 def cache(fn):
@@ -27,7 +28,7 @@ def main():
     window = Tk()
     window.title("Fibonacci Series")
 
-    ##  Takes user input
+    ##  User entry field
     entry = Entry(window)
     entry.grid(row=0, column=0, padx=(15,5), pady=(15,0))
     entry.insert(0, 'Enter n ≥ 0')
@@ -64,7 +65,7 @@ def onFocusIn(entry, e):
 def onFocusOut(entry, e):
     if entry.get() == '':
         entry.insert(0, 'Enter n ≥ 0')
-        entry.config(fg = 'light grey')
+        entry.config(fg='light grey')
 
 ##  Checks that n is a valid value and calls fibRecursive
 def display1(entry, valueStr, timeStr):
@@ -77,7 +78,7 @@ def display1(entry, valueStr, timeStr):
 
             displayResults(value, elapsedTime, valueStr, timeStr)
 
-            ##  If generateSpreadsheet == True, time the other algorithm and call generateResults
+            ##  If generateSpreadsheet == True, time fibDynamic as well and call generateResults
             if generateSpreadsheet == True:
                 startTime2 = time.perf_counter()
                 fibDynamic(n)
@@ -100,7 +101,7 @@ def display2(entry, valueStr, timeStr):
 
             displayResults(value, elapsedTime, valueStr, timeStr)
 
-            ##  If generateSpreadsheet == True, time the other algorithm and call generateResults
+            ##  If generateSpreadsheet == True, time fibRecursive as well and call generateResults
             if generateSpreadsheet == True:
                 startTime2 = time.perf_counter()
                 fibRecursive(n)
@@ -118,6 +119,10 @@ def displayResults(value, time, valueStr, timeStr):
         timeSpent = time
     else:
         timeSpent = str(time) + ' ms'
+
+    if not isinstance(value, str):
+        if len(str(value)) > 12:
+            value = format(value, '.6e')
         
     valueStr.set(value)
     timeStr.set(timeSpent)
@@ -142,10 +147,13 @@ def fibDynamic(n):
         b = temp
     return b
 
+##  When generateSpreadsheet == True, add results to Fibonacci_Time.csv
 def generateResults(filename, n, value, timeRecursive, timeDynamic):
     value1 = (2**n) / n
+    value1 = format(value1, '.0e')
 
     value2 = timeRecursive / timeDynamic
+    value2 = format(value2, '.0e')
 
     ##  If the file does not exist, create it and add the results to it
     if os.path.isfile(filename) == False:
