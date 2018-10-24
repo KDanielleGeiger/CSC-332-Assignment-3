@@ -111,17 +111,29 @@ def display2(entry, valueStr, timeStr):
 
 ##  Helper function to format results and display them on the UI
 def displayResults(value, time, valueStr, timeStr):
-    if isinstance(value, str):
+    ##  Format time if necessary
+    if isinstance(time, str):
         timeSpent = time
     else:
         timeSpent = str(time) + ' ms'
 
+    ##  If value is very large, convert to scientific notation before displaying it
     if not isinstance(value, str):
         if len(str(value)) > 12:
-            value = format(value, '.6e')
-        
-    valueStr.set(value)
-    timeStr.set(timeSpent)
+            ##  Check for OverflowError
+            try:
+                value = format(value, '.6e')
+                valueStr.set(value)
+                timeStr.set(timeSpent)
+            except (OverflowError):
+                valueStr.set('Too large')
+                timeStr.set('Too large')
+        else:
+            valueStr.set(value)
+            timeStr.set(timeSpent)
+    else:
+        valueStr.set(value)
+        timeStr.set(timeSpent)
 
 ##  The recursive Fibonacci algorithm
 def fibRecursive(n):
