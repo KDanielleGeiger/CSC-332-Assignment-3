@@ -9,20 +9,6 @@ from functools import partial
 ##  *** Enabling this will run BOTH algorithms, regardless of what the user selects ***
 generateSpreadsheet = False
 
-##  Decorator that caches results for the fibDynamic function
-def cache(fn):
-    CACHE = {}
-
-    def wrapper(*args):
-        if args in CACHE:
-            return CACHE[args]
-        else:
-            result = fn(*args)
-            CACHE[args] = result
-            return result
-
-    return wrapper
-
 ##  Creates the UI
 def main():
     window = Tk()
@@ -87,8 +73,13 @@ def display1(entry, valueStr, timeStr):
                 generateResults('Fibonacci_Time.csv', n, value, elapsedTime, elapsedTime2)
         else:
             displayResults('Invalid Input', 'Invalid Input', valueStr, timeStr)
-    except:
-        displayResults('Invalid Input', 'Invalid Input', valueStr, timeStr)
+    except (ValueError, RecursionError) as e:
+        if isinstance(e, ValueError):
+            displayResults('Invalid Input', 'Invalid Input', valueStr, timeStr)
+        elif isinstance(e, RecursionError):
+            displayResults('Cannot compute', 'Cannot compute', valueStr, timeStr)
+        else:
+            raise
 
 ##  Checks that n is a valid value and calls fibDynamic
 def display2(entry, valueStr, timeStr):
@@ -110,8 +101,13 @@ def display2(entry, valueStr, timeStr):
                 generateResults('Fibonacci_Time.csv', n, value, elapsedTime2, elapsedTime)
         else:
             displayResults('Invalid Input', 'Invalid Input', valueStr, timeStr)
-    except:
-        displayResults('Invalid Input', 'Invalid Input', valueStr, timeStr)
+    except (ValueError, RecursionError) as e:
+        if isinstance(e, ValueError):
+            displayResults('Invalid Input', 'Invalid Input', valueStr, timeStr)
+        elif isinstance(e, RecursionError):
+            displayResults('Cannot compute', 'Cannot compute', valueStr, timeStr)
+        else:
+            raise
 
 ##  Helper function to format results and display them on the UI
 def displayResults(value, time, valueStr, timeStr):
@@ -137,8 +133,6 @@ def fibRecursive(n):
         return (fibRecursive(n-1) + fibRecursive(n-2))
 
 ##  The dynamic Fibonacci algorithm
-##  Uses cache decorator to cache results and improve performance
-@cache
 def fibDynamic(n):
     a = b = 1
     for x in range(0, n-1):
