@@ -157,9 +157,13 @@ def fibDynamic(n):
 def generateResults(filename, n, value, timeRecursive, timeDynamic):
     value1 = (2**n) / n
     value1 = format(value1, '.0e')
+    a, b = value1.split("e")
+    value1 = a + ' * 10^' + str(int(b))
 
     value2 = timeRecursive / timeDynamic
     value2 = format(value2, '.0e')
+    a, b = value2.split("e")
+    value2 = a + ' * 10^' + str(int(b))
 
     ##  If the file does not exist, create it and add the results to it
     if os.path.isfile(filename) == False:
